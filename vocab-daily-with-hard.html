@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="theme-color" content="#0f766e" />
+  <title>Vocab Daily</title>
+  <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2rem);
+      --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem; --space-8: 2rem; --space-10: 2.5rem;
+      --radius-sm: 0.5rem; --radius-md: 0.875rem; --radius-lg: 1.25rem; --radius-full: 9999px;
+      --shadow-sm: 0 4px 12px rgba(0,0,0,.06); --shadow-md: 0 12px 32px rgba(0,0,0,.10);
+      --font-body: 'Satoshi', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --color-bg: #f7f6f2; --color-surface:#ffffff; --color-surface-2:#f3f0ec; --color-border:#ddd7cf;
+      --color-text:#1f2937; --color-text-muted:#6b7280; --color-primary:#0f766e; --color-primary-2:#0c5c56; --color-accent:#dff4f1; --color-good:#3f7a1f; --color-bad:#a12c44;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust:none; text-size-adjust:none; }
+    body {
+      min-height: 100dvh; font-family: var(--font-body); font-size: var(--text-base); color: var(--color-text);
+      background: linear-gradient(180deg, #eef7f5 0%, var(--color-bg) 18%, var(--color-bg) 100%);
+      padding: env(safe-area-inset-top) var(--space-4) calc(env(safe-area-inset-bottom) + 88px);
+    }
+    button, input, textarea { font: inherit; }
+    .app { max-width: 560px; margin: 0 auto; padding-top: var(--space-4); }
+    .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--space-6); }
+    .logo { display:flex; align-items:center; gap: .75rem; }
+    .logo-mark { width: 2.5rem; height: 2.5rem; border-radius: 0.9rem; background: linear-gradient(135deg, var(--color-primary), #34b3a0); display:grid; place-items:center; color:#fff; box-shadow: var(--shadow-sm); }
+    .logo h1 { font-size: var(--text-lg); line-height:1.1; }
+    .logo p { color: var(--color-text-muted); font-size: var(--text-sm); }
+    .ghost-btn { border:1px solid var(--color-border); background: rgba(255,255,255,.7); color: var(--color-text); border-radius: var(--radius-full); padding: .7rem .95rem; }
+    .hero { background: rgba(255,255,255,.72); border:1px solid rgba(255,255,255,.8); backdrop-filter: blur(10px); border-radius: var(--radius-lg); padding: var(--space-5); box-shadow: var(--shadow-md); margin-bottom: var(--space-5); }
+    .hero .badge { display:inline-flex; gap:.4rem; align-items:center; font-size:var(--text-xs); color:var(--color-primary); background: var(--color-accent); padding: .4rem .7rem; border-radius: var(--radius-full); margin-bottom: .8rem; }
+    .hero h2 { font-size: var(--text-xl); margin-bottom: .5rem; }
+    .hero p { color: var(--color-text-muted); line-height: 1.55; }
+    .stats { display:grid; grid-template-columns: repeat(3,1fr); gap: .75rem; margin-top: var(--space-4); }
+    .stat { background: var(--color-surface); border:1px solid var(--color-border); border-radius: var(--radius-md); padding: .85rem; }
+    .stat small { display:block; color: var(--color-text-muted); font-size: var(--text-xs); margin-bottom:.25rem; }
+    .stat strong { font-size: var(--text-lg); }
+    .section { display:none; }
+    .section.active { display:block; }
+    .card { background: var(--color-surface); border:1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-5); box-shadow: var(--shadow-sm); margin-bottom: var(--space-4); }
+    .section-title { display:flex; justify-content:space-between; align-items:end; margin-bottom: var(--space-4); }
+    .section-title h3 { font-size: var(--text-lg); }
+    .section-title span { color: var(--color-text-muted); font-size: var(--text-sm); }
+    .word { font-size: clamp(2rem, 1.4rem + 4vw, 2.8rem); font-weight: 700; line-height: 1; margin-bottom: .5rem; }
+    .meta { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom: 1rem; }
+    .chip { background: var(--color-surface-2); color: var(--color-text-muted); padding: .42rem .7rem; border-radius: var(--radius-full); font-size: var(--text-xs); }
+    .prompt { color: var(--color-text-muted); margin-bottom: .75rem; }
+    .answer { background: #fafaf8; border:1px dashed var(--color-border); border-radius: var(--radius-md); padding: .9rem; margin-top: .75rem; line-height:1.55; }
+    .actions { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-top: var(--space-4); }
+    .btn { min-height: 48px; border:0; border-radius: 1rem; padding: .9rem 1rem; font-weight:700; }
+    .btn-primary { background: var(--color-primary); color:#fff; }
+    .btn-secondary { background: #edf7f5; color: var(--color-primary); border:1px solid #c7e7e1; }
+    .btn-good { background: #ecf6e7; color: var(--color-good); border:1px solid #d4e8c8; }
+    .btn-bad { background: #faecef; color: var(--color-bad); border:1px solid #efcfd8; }
+    .field { margin-bottom: 1rem; }
+    .field label { display:block; font-size: var(--text-sm); margin-bottom: .45rem; color: var(--color-text-muted); }
+    .field input, .field textarea { width:100%; border:1px solid var(--color-border); border-radius: .95rem; padding: .95rem 1rem; background:#fff; }
+    .field textarea { min-height: 92px; resize: vertical; }
+    .helper { color: var(--color-text-muted); font-size: var(--text-xs); margin-top: .35rem; }
+    .list { display:grid; gap:.75rem; }
+    .list-item { border:1px solid var(--color-border); border-radius: 1rem; padding: .95rem; background:#fff; }
+    .list-item-top { display:flex; justify-content:space-between; gap: .75rem; margin-bottom:.5rem; }
+    .list-item strong { font-size: 1.05rem; }
+    .muted { color: var(--color-text-muted); }
+    .bottom-nav { position:fixed; left:0; right:0; bottom:0; padding: .7rem 1rem calc(env(safe-area-inset-bottom) + .7rem); background: rgba(250,249,246,.92); backdrop-filter: blur(14px); border-top:1px solid rgba(0,0,0,.06); }
+    .bottom-nav-inner { max-width:560px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem; }
+    .nav-btn { min-height: 54px; border-radius: 1rem; border:1px solid transparent; background: transparent; color: var(--color-text-muted); font-weight:700; }
+    .nav-btn.active { background:#fff; color: var(--color-primary); border-color: #d9ebe8; box-shadow: var(--shadow-sm); }
+    .tiny { font-size: var(--text-xs); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="logo">
+        <div class="logo-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h6"/><path d="M9 11h8"/></svg>
+        </div>
+        <div>
+          <h1>Vocab Daily</h1>
+          <p>每天 3–5 分鐘就好</p>
+        </div>
+      </div>
+      <button class="ghost-btn" id="seedBtn" aria-label="載入示範資料">示範</button>
+    </header>
+
+    <section class="hero">
+      <div class="badge">可加到主畫面 · 像 App 一樣打開</div>
+      <h2>每天背單字</h2>
+      <p>今天先做該複習的字，再視情況新增 1–3 個新字。你最棒！</p>
+      <div class="stats">
+        <div class="stat"><small>今天到期</small><strong id="dueCount">0</strong></div>
+        <div class="stat"><small>單字總數</small><strong id="totalCount">0</strong></div>
+        <div class="stat"><small>連續完成</small><strong id="streakCount">1</strong></div>
+      </div>
+    </section>
+
+    <main>
+      <section id="review" class="section active" aria-label="今日複習">
+        <div class="section-title"><h3>今日複習</h3><span id="reviewLabel">先回想再看答案</span></div>
+        <div id="reviewEmpty" class="card">
+          <p class="muted">今天還沒有到期的單字。你可以先新增 1–3 個字，或按右上角的「示範」看看操作。</p>
+        </div>
+        <div id="reviewCard" class="card" hidden>
+          <div class="word" id="reviewWord">impact</div>
+          <div class="meta">
+            <div class="chip" id="reviewMeaning">影響</div>
+            <div class="chip" id="reviewDue">今天複習</div>
+          </div>
+          <p class="prompt">先想想這個字常怎麼搭配，再按「看答案」。</p>
+          <button class="btn btn-secondary" id="showAnswerBtn">看答案</button>
+          <div class="answer" id="answerBox" hidden></div>
+          <div class="actions" id="gradeActions" hidden>
+            <button class="btn btn-bad" id="againBtn">不熟，再快點出現</button>
+            <button class="btn btn-good" id="goodBtn">熟，下次晚一點</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="add" class="section" aria-label="新增單字">
+        <div class="section-title"><h3>新增單字</h3><span>一次 1–3 個最剛好</span></div>
+        <div class="card">
+          <div class="field">
+            <label for="wordInput">單字</label>
+            <input id="wordInput" placeholder="例如 impact" />
+          </div>
+          <div class="field">
+            <label for="meaningInput">中文意思</label>
+            <input id="meaningInput" placeholder="例如 影響" />
+          </div>
+          <div class="field">
+            <label for="collocationInput">搭配詞</label>
+            <input id="collocationInput" placeholder="例如 have an impact on ; positive impact" />
+            <div class="helper">用分號 ; 分隔兩個搭配詞就可以。</div>
+          </div>
+          <div class="field">
+            <label for="exampleInput">例句</label>
+            <textarea id="exampleInput" placeholder="例如 The campaign had a big impact on customer behavior."></textarea>
+          </div>
+          <button class="btn btn-primary" id="saveBtn">加入單字庫</button>
+        </div>
+      </section>
+
+      <section id="library" class="section" aria-label="單字庫">
+        <div class="section-title"><h3>單字庫</h3><span>你收過的字都在這裡</span></div>
+        <div id="libraryList" class="list"></div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="bottom-nav" aria-label="主要功能">
+    <div class="bottom-nav-inner">
+      <button class="nav-btn active" data-target="review">複習</button>
+      <button class="nav-btn" data-target="add">新增</button>
+      <button class="nav-btn" data-target="library">單字庫</button>
+    </div>
+  </nav>
+
+  <script>
+    const STORAGE_KEY = 'vocab-daily-data-v1';
+    const STREAK_KEY = 'vocab-daily-streak-v1';
+    const intervalsGood = [1, 3, 7, 14, 30];
+    const intervalsAgain = [0, 1, 3, 7, 14];
+
+    const todayStr = () => new Date().toISOString().slice(0,10);
+    const addDays = (dateStr, days) => {
+      const d = new Date(dateStr + 'T12:00:00');
+      d.setDate(d.getDate() + days);
+      return d.toISOString().slice(0,10);
+    };
+
+    const seedWords = [
+      { word:'impact', meaning:'影響', collocations:["have an impact on", "positive impact"], example:'The new packaging had a positive impact on sales.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'maintain', meaning:'維持', collocations:["maintain quality", "maintain a balance"], example:'It is hard to maintain a healthy balance during busy weeks.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'launch', meaning:'推出；發表', collocations:["launch a campaign", "product launch"], example:'The brand will launch a new campaign next month.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'opportunity', meaning:'機會', collocations:["opportunity to learn", "job opportunity"], example:'This trip is a great opportunity to improve your English.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'responsibility', meaning:'責任', collocations:["take responsibility for", "sense of responsibility"], example:'She took responsibility for the mistake.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'schedule', meaning:'行程；排程', collocations:["busy schedule", "work schedule"], example:'My schedule is full this week.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'decision', meaning:'決定', collocations:["make a decision", "final decision"], example:'It was a difficult decision to make.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'benefit', meaning:'好處；受益', collocations:["benefit from", "health benefits"], example:'You can benefit from reading every day.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'achieve', meaning:'達成；實現', collocations:["achieve a goal", "achieve success"], example:'She worked hard to achieve her goal.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'improve', meaning:'改善；進步', collocations:["improve skills", "improve performance"], example:'Daily practice will improve your vocabulary.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'develop', meaning:'發展；培養', collocations:["develop a habit", "develop skills"], example:'Try to develop a daily review habit.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'require', meaning:'需要；要求', collocations:["require attention", "require effort"], example:'This task requires patience and focus.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'available', meaning:'可取得的；可用的', collocations:["be available for", "available time"], example:'I’m available after 7 p.m.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'purpose', meaning:'目的', collocations:["for the purpose of", "main purpose"], example:'The purpose of this app is to help you review words.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'estimate', meaning:'估計', collocations:["estimate the cost", "rough estimate"], example:'I estimate it will take 10 minutes.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'approach', meaning:'方法；接近', collocations:["a new approach", "approach a problem"], example:'Try a different approach if this one feels hard.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'consider', meaning:'考慮', collocations:["consider doing", "take into consideration"], example:'Please consider starting with five words a day.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'support', meaning:'支持；幫助', collocations:["support a plan", "support each other"], example:'A good system supports long-term habits.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'suggest', meaning:'建議；暗示', collocations:["suggest a plan", "suggest that"], example:'I suggest keeping the daily goal very small.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'focus', meaning:'專注', collocations:["focus on", "stay focused"], example:'Focus on the words you actually use.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'regularly', meaning:'定期地；規律地', collocations:["check regularly", "study regularly"], example:'Review the cards regularly to remember them longer.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'reduce', meaning:'減少', collocations:["reduce stress", "reduce mistakes"], example:'A simple routine can reduce stress.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'increase', meaning:'增加', collocations:["increase confidence", "increase vocabulary"], example:'Regular practice can increase confidence.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'avoid', meaning:'避免', collocations:["avoid mistakes", "avoid wasting time"], example:'Try to avoid learning too many words at once.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'instead', meaning:'取代；反而', collocations:["instead of", "do this instead"], example:'Use collocations instead of only memorizing one meaning.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'detail', meaning:'細節', collocations:["in detail", "pay attention to detail"], example:'The app shows key details for each word.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'memory', meaning:'記憶', collocations:["long-term memory", "memory trick"], example:'Spaced repetition is great for memory.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'review', meaning:'複習；回顧', collocations:["review words", "daily review"], example:'Spend a few minutes to review words every day.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'vocabulary', meaning:'詞彙', collocations:["build vocabulary", "vocabulary list"], example:'You can build vocabulary little by little.', level:0, nextReview:todayStr(), createdAt:todayStr() },
+      { word:'collocation', meaning:'搭配詞', collocations:["common collocation", "word collocation"], example:'Learning collocations helps you sound natural.', level:0, nextReview:todayStr(), createdAt:todayStr() }
+    ];
+
+    const els = {
+      sections: [...document.querySelectorAll('.section')],
+      navBtns: [...document.querySelectorAll('.nav-btn')],
+      dueCount: document.getElementById('dueCount'),
+      totalCount: document.getElementById('totalCount'),
+      streakCount: document.getElementById('streakCount'),
+      reviewEmpty: document.getElementById('reviewEmpty'),
+      reviewCard: document.getElementById('reviewCard'),
+      reviewWord: document.getElementById('reviewWord'),
+      reviewMeaning: document.getElementById('reviewMeaning'),
+      reviewDue: document.getElementById('reviewDue'),
+      answerBox: document.getElementById('answerBox'),
+      showAnswerBtn: document.getElementById('showAnswerBtn'),
+      gradeActions: document.getElementById('gradeActions'),
+      againBtn: document.getElementById('againBtn'),
+      goodBtn: document.getElementById('goodBtn'),
+      saveBtn: document.getElementById('saveBtn'),
+      seedBtn: document.getElementById('seedBtn'),
+      libraryList: document.getElementById('libraryList'),
+      wordInput: document.getElementById('wordInput'),
+      meaningInput: document.getElementById('meaningInput'),
+      collocationInput: document.getElementById('collocationInput'),
+      exampleInput: document.getElementById('exampleInput')
+    };
+
+    let words = loadWords();
+    let reviewQueue = [];
+    let currentIndex = 0;
+
+    function loadWords() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch { return []; }
+    }
+
+    function saveWords() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
+    }
+
+    function updateStreak() {
+      const today = todayStr();
+      const raw = JSON.parse(localStorage.getItem(STREAK_KEY) || '{}');
+      if (raw.lastOpen === today) return raw.count || 1;
+      const yesterday = addDays(today, -1);
+      const count = raw.lastOpen === yesterday ? (raw.count || 1) + 1 : 1;
+      localStorage.setItem(STREAK_KEY, JSON.stringify({ lastOpen: today, count }));
+      return count;
+    }
+
+    function getDueWords() {
+      const today = todayStr();
+      return words.filter(w => !w.nextReview || w.nextReview <= today);
+    }
+
+    function renderStats() {
+      const due = getDueWords().length;
+      els.dueCount.textContent = due;
+      els.totalCount.textContent = words.length;
+      els.streakCount.textContent = updateStreak();
+    }
+
+    function renderReview() {
+      reviewQueue = getDueWords();
+      if (!reviewQueue.length) {
+        els.reviewEmpty.hidden = false;
+        els.reviewCard.hidden = true;
+        return;
+      }
+      els.reviewEmpty.hidden = true;
+      els.reviewCard.hidden = false;
+      if (currentIndex >= reviewQueue.length) currentIndex = 0;
+      const item = reviewQueue[currentIndex];
+      els.reviewWord.textContent = item.word;
+      els.reviewMeaning.textContent = item.meaning || '未填寫';
+      els.reviewDue.textContent = `第 ${item.level + 1} 輪`; 
+      els.answerBox.hidden = true;
+      els.gradeActions.hidden = true;
+      els.showAnswerBtn.hidden = false;
+      els.answerBox.innerHTML = `
+        <div><strong>搭配詞</strong><br>${(item.collocations || []).join('<br>') || '未填寫'}</div>
+        <div style="margin-top:.75rem"><strong>例句</strong><br>${item.example || '未填寫'}</div>
+      `;
+    }
+
+    function renderLibrary() {
+      if (!words.length) {
+        els.libraryList.innerHTML = '<div class="card"><p class="muted">還沒有單字。先去「新增」放進第一個字吧。</p></div>';
+        return;
+      }
+      els.libraryList.innerHTML = [...words]
+        .sort((a,b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+        .map((item, idx) => `
+          <article class="list-item">
+            <div class="list-item-top">
+              <div>
+                <strong>${escapeHtml(item.word)}</strong>
+                <div class="tiny muted">${escapeHtml(item.meaning || '')}</div>
+              </div>
+              <div class="tiny muted">下次 ${escapeHtml(item.nextReview || todayStr())}</div>
+            </div>
+            <div class="tiny">${(item.collocations || []).map(c => `<span class="chip" style="margin-right:.35rem">${escapeHtml(c)}</span>`).join('')}</div>
+          </article>`).join('');
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
+
+    function switchTab(target) {
+      els.sections.forEach(sec => sec.classList.toggle('active', sec.id === target));
+      els.navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.target === target));
+    }
+
+    function gradeCurrent(type) {
+      const item = reviewQueue[currentIndex];
+      const currentLevel = item.level || 0;
+      if (type === 'good') {
+        item.level = Math.min(currentLevel + 1, intervalsGood.length - 1);
+        item.nextReview = addDays(todayStr(), intervalsGood[item.level]);
+      } else {
+        item.level = Math.max(currentLevel - 1, 0);
+        item.nextReview = addDays(todayStr(), intervalsAgain[item.level]);
+      }
+      words = words.map(w => w.word === item.word && w.createdAt === item.createdAt ? item : w);
+      saveWords();
+      renderStats();
+      renderLibrary();
+      renderReview();
+    }
+
+    els.showAnswerBtn.addEventListener('click', () => {
+      els.answerBox.hidden = false;
+      els.gradeActions.hidden = false;
+      els.showAnswerBtn.hidden = true;
+    });
+    els.goodBtn.addEventListener('click', () => gradeCurrent('good'));
+    els.againBtn.addEventListener('click', () => gradeCurrent('again'));
+
+    els.saveBtn.addEventListener('click', () => {
+      const word = els.wordInput.value.trim();
+      const meaning = els.meaningInput.value.trim();
+      if (!word || !meaning) {
+        alert('至少先填單字和中文意思。');
+        return;
+      }
+      const collocations = els.collocationInput.value.split(';').map(s => s.trim()).filter(Boolean);
+      const entry = {
+        word, meaning, collocations,
+        example: els.exampleInput.value.trim(),
+        level: 0,
+        nextReview: todayStr(),
+        createdAt: todayStr() + '-' + Math.random().toString(36).slice(2,7)
+      };
+      words.unshift(entry);
+      saveWords();
+      els.wordInput.value = '';
+      els.meaningInput.value = '';
+      els.collocationInput.value = '';
+      els.exampleInput.value = '';
+      renderStats();
+      renderLibrary();
+      renderReview();
+      switchTab('review');
+    });
+
+    els.seedBtn.addEventListener('click', () => {
+      if (words.length && !confirm('目前已有資料，載入示範會再加入 3 個示範單字。要繼續嗎？')) return;
+      words = [...seedWords, ...words];
+      saveWords();
+      renderStats();
+      renderLibrary();
+      renderReview();
+      switchTab('review');
+    });
+
+    els.navBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.target)));
+
+    renderStats();
+    renderLibrary();
+    renderReview();
+  </script>
+</body>
+</html>
